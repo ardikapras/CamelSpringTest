@@ -4,16 +4,34 @@ import me.ardikapras.camelspringtest.model.AppModel;
 import me.ardikapras.camelspringtest.model.Response;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.ParamDefinition;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.apache.camel.model.rest.RestParamType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Component
 public class AppController extends RouteBuilder {
     Logger logger = LoggerFactory.getLogger(AppController.class);
+    ParamDefinition paramSessionId =
+            new ParamDefinition()
+                    .name("sessionId")
+                    .type(RestParamType.header)
+                    .required(true)
+                    .description("sessionId for authorization");
+    ParamDefinition paramApiKey =
+            new ParamDefinition()
+                    .name("apiKey")
+                    .type(RestParamType.header)
+                    .required(true)
+                    .description("apiKey for authorization");
+    List<ParamDefinition> paramDefinitionList = Arrays.asList(paramSessionId, paramApiKey);
 
     @Override
     public void configure() throws Exception {
@@ -24,6 +42,7 @@ public class AppController extends RouteBuilder {
                 .dataFormatProperty("mustBeJAXBElement", "false");
 
         rest("/customers/")
+                .params(paramDefinitionList)
                 .produces(APPLICATION_JSON_VALUE)
                 .consumes(APPLICATION_JSON_VALUE)
 
